@@ -1,26 +1,17 @@
 """
 Image Proxy - Server-side image fetching to bypass CORS/hotlink restrictions
-
-This module provides:
-1. URL resolution (Instagram og:image extraction, Imgur transforms, etc.)
-2. Image fetching and caching
-3. A proxy endpoint for serving images
 """
 import httpx
 import re
-import hashlib
+import os
 from typing import Optional, Tuple
-from pathlib import Path
 
-# Simple file-based cache for resolved URLs
-CACHE_DIR = Path(__file__).parent.parent / "image_cache"
-CACHE_DIR.mkdir(exist_ok=True)
+# Use /tmp for cache on serverless platforms like Render
+CACHE_DIR = "/tmp/image_cache"
+os.makedirs(CACHE_DIR, exist_ok=True)
 
 async def resolve_image_url(url: str) -> str:
-    """
-    Resolve a URL to a direct image URL.
-    Handles Instagram, Imgur, Twitter, etc.
-    """
+    """Resolve a URL to a direct image URL."""
     if not url:
         return ""
     
@@ -54,47 +45,26 @@ async def resolve_image_url(url: str) -> str:
         try:
             async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
                 headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
                 }
                 response = await client.get(url, headers=headers)
                 if response.status_code == 200:
-                    # Try multiple og:image patterns
                     patterns = [
                         r'property="og:image"\s+content="([^"]+)"',
                         r'content="([^"]+)"\s+property="og:image"',
-                        r'"display_url":"([^"]+)"',
-                        r'"src":"(https://[^"]+\.jpg[^"]*)"'
                     ]
                     for pattern in patterns:
                         match = re.search(pattern, response.text)
                         if match:
-                            img_url = match.group(1).replace('\\u0026', '&')
-                            return img_url
-        except Exception as e:
-            print(f"Instagram resolution failed: {e}")
-    
-    # Twitter/X - extract og:image
-    if 'twitter.com' in url or 'x.com' in url:
-        try:
-            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
-                headers = {'User-Agent': 'Twitterbot/1.0'}
-                response = await client.get(url, headers=headers)
-                if response.status_code == 200:
-                    match = re.search(r'property="og:image"\s+content="([^"]+)"', response.text)
-                    if match:
-                        return match.group(1)
+                            return match.group(1).replace('\\u0026', '&')
         except:
             pass
     
-    # Fallback - return original
     return url
 
 
 async def fetch_image(url: str) -> Tuple[Optional[bytes], str]:
-    """
-    Fetch image bytes from URL.
-    Returns (bytes, content_type) or (None, error_message)
-    """
+    """Fetch image bytes from URL."""
     try:
         resolved = await resolve_image_url(url)
         
@@ -102,40 +72,37 @@ async def fetch_image(url: str) -> Tuple[Optional[bytes], str]:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'Accept': 'image/*,*/*',
-                'Referer': 'https://www.google.com/'
             }
             response = await client.get(resolved, headers=headers)
             
             if response.status_code == 200:
                 content_type = response.headers.get('content-type', 'image/jpeg')
-                if 'image' in content_type or len(response.content) > 1000:
-                    return response.content, content_type
+                return response.content, content_type
         
-        return None, "Failed to fetch image"
+        return None, "Failed to fetch"
     except Exception as e:
         return None, str(e)
 
 
-def get_cache_path(url: str) -> Path:
-    """Get cache file path for a URL"""
-    url_hash = hashlib.md5(url.encode()).hexdigest()
-    return CACHE_DIR / f"{url_hash}.jpg"
-
-
 async def get_cached_or_fetch(url: str) -> Tuple[Optional[bytes], str]:
-    """Get image from cache or fetch it"""
-    cache_path = get_cache_path(url)
+    """Get image from cache or fetch it."""
+    import hashlib
     
-    # Check cache first
-    if cache_path.exists():
-        return cache_path.read_bytes(), 'image/jpeg'
+    url_hash = hashlib.md5(url.encode()).hexdigest()
+    cache_path = f"{CACHE_DIR}/{url_hash}.jpg"
+    
+    # Check cache
+    if os.path.exists(cache_path):
+        with open(cache_path, 'rb') as f:
+            return f.read(), 'image/jpeg'
     
     # Fetch and cache
     data, content_type = await fetch_image(url)
     if data:
         try:
-            cache_path.write_bytes(data)
+            with open(cache_path, 'wb') as f:
+                f.write(data)
         except:
-            pass  # Cache write failed, that's ok
+            pass
     
     return data, content_type
