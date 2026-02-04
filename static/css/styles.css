@@ -335,6 +335,38 @@ body {
     margin-bottom: 15px;
 }
 
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-upload-btn {
+    padding: 12px 18px;
+    background: #1a1a1a;
+    color: #fff;
+    border: 2px solid #1a1a1a;
+    font-family: 'Courier Prime', monospace;
+    font-size: 12px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.file-upload-btn:hover {
+    background: #cc0000;
+    border-color: #cc0000;
+}
+
+.file-name {
+    font-size: 11px;
+    color: #666;
+}
+
 .form-input {
     width: 100%;
     padding: 12px;
@@ -429,24 +461,145 @@ body {
 @media (max-width: 900px) {
     .cards-grid {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
     }
 
     .create-container {
         flex-direction: column;
     }
+
+    .form-row {
+        flex-direction: column;
+    }
 }
 
-@media (max-width: 600px) {
-    .sidebar {
-        width: 60px;
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
     }
 
-    .sidebar .nav-item span,
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        border-right: none;
+        border-bottom: 2px solid #1a1a1a;
+        overflow-x: auto;
+    }
+
+    .sidebar-header {
+        border-bottom: none;
+        border-right: 2px solid #1a1a1a;
+        padding: 10px 15px;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+    }
+
+    .nav-item {
+        border-bottom: none;
+        border-right: 1px solid #ddd;
+        white-space: nowrap;
+        padding: 10px 12px;
+    }
+
+    .nav-item.active {
+        border-left: none;
+        border-bottom: 3px solid #cc0000;
+    }
+
     .sidebar-rules {
         display: none;
     }
 
+    .top-bar {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px 15px;
+    }
+
+    .search-container {
+        width: 100%;
+    }
+
+    .page-content {
+        padding: 15px;
+    }
+
     .cards-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
     }
+
+    .pokemon-card {
+        box-shadow: 4px 4px 0 #1a1a1a, inset 0 0 0 2px #d4af37;
+    }
+
+    .card-body {
+        padding: 0 10px 10px;
+    }
+
+    .card-title {
+        font-size: 14px;
+    }
+
+    .card-actions {
+        gap: 6px;
+    }
+
+    .btn-like,
+    .btn-download,
+    .btn-share {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    /* Create page mobile */
+    .create-container {
+        gap: 15px;
+    }
+
+    .preview-box {
+        aspect-ratio: 16/9;
+        max-height: 200px;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+        padding: 14px;
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+    }
+
+    .btn-submit {
+        padding: 16px;
+        font-size: 16px;
+    }
+
+    .file-upload-btn {
+        padding: 14px 20px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 400px) {
+    .card-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .card-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .pokemon-card:hover {
+        transform: none;
+    }
+}
+
+/* Full width select for nationality */
+.full-width {
+    width: 100%;
 }

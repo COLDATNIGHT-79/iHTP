@@ -149,7 +149,7 @@ async def search_posts(request: Request, q: str = Query(""), db: AsyncSession = 
 @app.post("/posts", response_class=HTMLResponse)
 async def create_post(
     request: Request, 
-    image_url: str = Form(""),
+    image: UploadFile = File(None),
     title: str = Form(...),
     description: str = Form(""), 
     reason: str = Form(""), 
@@ -161,9 +161,18 @@ async def create_post(
     # Build tags list from dropdowns
     tag_list = [t.strip().lower() for t in [tag1, tag2] if t.strip()]
     
-    # Store the URL - resolution happens at display time via proxy
+    # Process uploaded image - compress to ~3KB blocky style
+    image_data = None
+    if image and image.filename:
+        from .image_processor import compress_to_blocky
+        file_content = await image.read()
+        image_data, error = compress_to_blocky(file_content, image.content_type)
+        if error:
+            print(f"Image compression error: {error}")
+            # Continue without image on error
+    
     new_post = Post(
-        image_url=image_url.strip() if image_url else None,
+        image_data=image_data,
         title=title[:50],
         description=description[:180] if description else None,
         reason=reason[:250] if reason else None,

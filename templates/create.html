@@ -11,70 +11,106 @@
                 <span class="preview-placeholder">image preview</span>
             </div>
             <p class="preview-hint">
-                Paste any image URL - Instagram, Twitter, Imgur, etc.<br>
-                We'll extract and display the image for you
+                Upload any image (max 2MB)<br>
+                Auto-compressed to ~3KB blocky style
             </p>
         </div>
 
         <!-- Right: Form -->
         <div class="create-form">
-            <form action="/posts" method="post">
+            <form action="/posts" method="post" enctype="multipart/form-data">
                 <div class="form-group">
-                    <input type="text" name="image_url" class="form-input"
-                        placeholder="paste image URL (instagram, twitter, imgur, direct link...)" id="image-url-input"
-                        oninput="previewUrl(this.value)">
+                    <label class="file-upload-label">
+                        <input type="file" name="image" accept="image/*" id="image-input" class="file-input" required>
+                        <span class="file-upload-btn">📷 Choose Image *</span>
+                        <span class="file-name" id="file-name">No file selected</span>
+                    </label>
                 </div>
 
                 <div class="form-group">
-                    <input type="text" name="title" class="form-input" placeholder="title" maxlength="50" required>
+                    <input type="text" name="title" class="form-input" placeholder="title *" maxlength="50" required>
                 </div>
 
                 <div class="form-group">
                     <textarea name="description" class="form-textarea" placeholder="description" maxlength="180"
-                        rows="3"></textarea>
+                        rows="2"></textarea>
                 </div>
 
                 <div class="form-group">
                     <textarea name="reason" class="form-textarea" placeholder="reason for hate" maxlength="250"
-                        rows="4"></textarea>
+                        rows="3"></textarea>
                 </div>
 
                 <div class="form-row">
-                    <select name="tag1" class="form-select">
-                        <option value="">tag 1</option>
-                        <option value="politics">politics</option>
-                        <option value="celebrity">celebrity</option>
-                        <option value="sports">sports</option>
-                        <option value="business">business</option>
-                        <option value="tech">tech</option>
-                        <option value="other">other</option>
+                    <select name="tag1" class="form-select" required>
+                        <option value="">tag 1 *</option>
+                        <optgroup label="People">
+                            <option value="celebrity">celebrity</option>
+                            <option value="politician">politician</option>
+                            <option value="influencer">influencer</option>
+                            <option value="athlete">athlete</option>
+                            <option value="musician">musician</option>
+                            <option value="actor">actor</option>
+                            <option value="ceo">ceo / business</option>
+                            <option value="streamer">streamer</option>
+                            <option value="youtuber">youtuber</option>
+                        </optgroup>
+                        <optgroup label="Personal">
+                            <option value="my-friend">my friend</option>
+                            <option value="my-ex">my ex</option>
+                            <option value="my-boss">my boss</option>
+                            <option value="coworker">coworker</option>
+                            <option value="classmate">classmate</option>
+                            <option value="teacher">teacher</option>
+                            <option value="neighbor">neighbor</option>
+                            <option value="family">family member</option>
+                        </optgroup>
+                        <optgroup label="Professional">
+                            <option value="lawyer">lawyer</option>
+                            <option value="doctor">doctor</option>
+                            <option value="landlord">landlord</option>
+                            <option value="scammer">scammer</option>
+                            <option value="criminal">criminal</option>
+                        </optgroup>
+                        <optgroup label="Fictional">
+                            <option value="fictional">fictional character</option>
+                            <option value="villain">villain</option>
+                            <option value="anime">anime character</option>
+                        </optgroup>
+                        <optgroup label="Other">
+                            <option value="tech">tech bro</option>
+                            <option value="karen">karen</option>
+                            <option value="other">other</option>
+                        </optgroup>
                     </select>
                     <select name="tag2" class="form-select">
                         <option value="">tag 2</option>
-                        <option value="politics">politics</option>
-                        <option value="celebrity">celebrity</option>
-                        <option value="sports">sports</option>
-                        <option value="business">business</option>
-                        <option value="tech">tech</option>
-                        <option value="other">other</option>
+                        <optgroup label="Traits">
+                            <option value="corrupt">corrupt</option>
+                            <option value="liar">liar</option>
+                            <option value="hypocrite">hypocrite</option>
+                            <option value="narcissist">narcissist</option>
+                            <option value="bully">bully</option>
+                            <option value="annoying">annoying</option>
+                            <option value="cringe">cringe</option>
+                            <option value="overrated">overrated</option>
+                            <option value="toxic">toxic</option>
+                            <option value="fake">fake</option>
+                        </optgroup>
+                        <optgroup label="Actions">
+                            <option value="scam">scam artist</option>
+                            <option value="sellout">sellout</option>
+                            <option value="snitch">snitch</option>
+                            <option value="traitor">traitor</option>
+                            <option value="cheater">cheater</option>
+                        </optgroup>
                     </select>
-                    <select name="nationality" class="form-select nationality-select">
-                        <option value="">nationality</option>
-                        <option value="US">🇺🇸 United States</option>
-                        <option value="GB">🇬🇧 United Kingdom</option>
-                        <option value="IN">🇮🇳 India</option>
-                        <option value="CA">🇨🇦 Canada</option>
-                        <option value="AU">🇦🇺 Australia</option>
-                        <option value="DE">🇩🇪 Germany</option>
-                        <option value="FR">🇫🇷 France</option>
-                        <option value="JP">🇯🇵 Japan</option>
-                        <option value="CN">🇨🇳 China</option>
-                        <option value="BR">🇧🇷 Brazil</option>
-                        <option value="MX">🇲🇽 Mexico</option>
-                        <option value="RU">🇷🇺 Russia</option>
-                        <option value="KR">🇰🇷 South Korea</option>
-                        <option value="IT">🇮🇹 Italy</option>
-                        <option value="ES">🇪🇸 Spain</option>
+                </div>
+
+                <div class="form-group">
+                    <select name="nationality" class="form-select full-width" id="nationality-select" required>
+                        <option value="">nationality / origin *</option>
+                        <option value="🌍">🌍 Global / Unknown</option>
                     </select>
                 </div>
 
@@ -85,14 +121,54 @@
 </div>
 
 <script>
-    function previewUrl(url) {
+    // Populate countries from REST Countries API
+    fetch('https://restcountries.com/v3.1/all?fields=name,flag')
+        .then(res => res.json())
+        .then(countries => {
+            const select = document.getElementById('nationality-select');
+            countries
+                .sort((a, b) => a.name.common.localeCompare(b.name.common))
+                .forEach(country => {
+                    const opt = document.createElement('option');
+                    opt.value = country.flag;
+                    opt.textContent = `${country.flag} ${country.name.common}`;
+                    select.appendChild(opt);
+                });
+        })
+        .catch(() => {
+            // Fallback if API fails
+            const fallback = ['🇺🇸 United States', '🇬🇧 United Kingdom', '🇮🇳 India', '🇨🇦 Canada', '🇦🇺 Australia', '🇩🇪 Germany', '🇫🇷 France', '🇯🇵 Japan', '🇨🇳 China', '🇧🇷 Brazil'];
+            const select = document.getElementById('nationality-select');
+            fallback.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.split(' ')[0];
+                opt.textContent = c;
+                select.appendChild(opt);
+            });
+        });
+
+    // Image preview
+    document.getElementById('image-input').addEventListener('change', function (e) {
+        const file = e.target.files[0];
         const preview = document.getElementById('image-preview');
-        if (!url || !url.trim()) {
+        const fileName = document.getElementById('file-name');
+
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File too large! Max 2MB');
+                e.target.value = '';
+                return;
+            }
+            fileName.textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+            };
+            reader.readAsDataURL(file);
+        } else {
             preview.innerHTML = '<span class="preview-placeholder">image preview</span>';
-            return;
+            fileName.textContent = 'No file selected';
         }
-        // For preview, try direct URL (may not work for Instagram but that's ok)
-        preview.innerHTML = '<img src="' + url + '" alt="Preview" onerror="this.outerHTML=\'<span class=preview-placeholder>Preview unavailable - will work after submit</span>\'">';
-    }
+    });
 </script>
 {% endblock %}

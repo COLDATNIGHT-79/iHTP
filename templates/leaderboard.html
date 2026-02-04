@@ -16,9 +16,9 @@
             </div>
 
             <div class="card-image-frame">
-                {% if post.image_url %}
-                <img src="/img/{{ post.id }}" alt="{{ post.title }}"
-                    onerror="this.src='/static/img/placeholder.png'; this.onerror=null;">
+                {% if post.image_data %}
+                <img src="data:image/jpeg;base64,{{ post.image_data }}" alt="{{ post.title }}"
+                    style="image-rendering: pixelated;">
                 {% else %}
                 <div class="no-image">NO IMAGE</div>
                 {% endif %}
