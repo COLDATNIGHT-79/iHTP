@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login - iHateThisPerson{% endblock %}
+
+{% block content %}
+<div class="demo-section" style="max-width: 400px; margin: 0 auto;">
+    <h2>Admin Login</h2>
+
+    {% if error %}
+    <div class="notice-box" style="background-color: #cc0000; color: white;">
+        <strong>ERROR:</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="post-form-box">
+        <form method="post" action="/admin/login">
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" class="form-input full-width" placeholder="Enter admin password"
+                    required autofocus>
+            </div>
+
+            <button type="submit" class="btn-submit" style="width: 100%;">
+                LOGIN
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

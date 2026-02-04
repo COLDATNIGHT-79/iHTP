@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Search Bar -->
+{% include 'components/search_bar.html' %}
+
+<!-- Leaderboard -->
+{% include 'components/leaderboard.html' %}
+
+<!-- Post Form -->
+<div class="demo-section">
+    <h2>Submit a Record</h2>
+    {% include 'components/post_form.html' %}
+</div>
+
+<!-- Feed -->
+<div class="demo-section">
+    <h2>All Records</h2>
+
+    <div id="feed">
+        {% for post in posts %}
+        {% include 'components/post_card.html' %}
+        {% else %}
+        <div class="notice-box" style="text-align: center;">
+            <strong>NO RECORDS FOUND.</strong> Be the first to hate.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

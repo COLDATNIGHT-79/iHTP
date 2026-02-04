@@ -1,0 +1,56 @@
+<!-- Single post row for admin panel (returned by HTMX after block/unblock) -->
+<div class="demo-post admin-post" id="post-{{ post.id }}">
+    {% if post.status.value == 'blocked' %}
+    <div class="warning-label">
+        ⚠ BLOCKED: {{ post.moderation_reason or "VIOLATES CONTENT POLICY" }}
+    </div>
+    {% endif %}
+
+    <div class="demo-post-header" style="display: flex; justify-content: space-between;">
+        <span>ID: {{ post.id | string | truncate(8, True, '') }}</span>
+        <span>{{ post.status.value | upper }}</span>
+    </div>
+
+    <div class="demo-post-content">
+        <h4 class="demo-post-title">{{ post.title }}</h4>
+
+        {% if post.description %}
+        <p style="font-size: 13px; margin-bottom: 10px;">{{ post.description }}</p>
+        {% endif %}
+
+        {% if post.reason %}
+        <div class="reason-box">
+            <strong>Reason:</strong> {{ post.reason }}
+        </div>
+        {% endif %}
+
+        <div style="border-top: 1px solid #999; padding-top: 15px; font-size: 11px;">
+            <p>Posted: {{ post.created_at.strftime('%Y-%m-%d %H:%M') }} | Likes: {{ post.like_count }} | Author: {{
+                post.author_hash[:8] }}...</p>
+        </div>
+
+        <!-- Admin Actions -->
+        {% if post.status.value != 'blocked' %}
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #cc0000;">
+            <form hx-post="/admin/posts/{{ post.id }}/block" hx-target="#post-{{ post.id }}" hx-swap="outerHTML">
+                <div class="form-group">
+                    <label style="color: #cc0000;">Block Reason (Required)</label>
+                    <input type="text" name="reason" class="form-input full-width"
+                        placeholder="Why is this being blocked?" required>
+                </div>
+                <button type="submit" class="btn-submit" style="background-color: #cc0000;">
+                    BLOCK POST
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #003d7a;">
+            <form hx-post="/admin/posts/{{ post.id }}/unblock" hx-target="#post-{{ post.id }}" hx-swap="outerHTML">
+                <button type="submit" class="btn-submit" style="background-color: #003d7a;">
+                    UNBLOCK POST
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,22 @@
+{% if leaderboard_posts %}
+<div class="leaderboard-grid">
+    {% for post in leaderboard_posts %}
+    <div class="leaderboard-card rank-{{ loop.index }}">
+        <div class="rank-badge">#{{ loop.index }}</div>
+        {% if post.image_url %}
+        <div class="leaderboard-image">
+            <img src="{{ post.image_url }}" alt="{{ post.title }}" onerror="this.parentElement.innerHTML='[NO IMG]'">
+        </div>
+        {% endif %}
+        <div class="leaderboard-info">
+            <h4>{{ post.title }}</h4>
+            <span class="hate-count">☆ {{ post.like_count }}</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="notice-box" style="text-align: center;">
+    No posts from the last 7 days yet. Start hating!
+</div>
+{% endif %}

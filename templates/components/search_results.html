@@ -1,0 +1,12 @@
+{% if search_results %}
+<div class="search-results-box">
+    <p class="search-count">Found {{ search_results | length }} result(s)</p>
+    {% for post in search_results %}
+    {% include 'components/post_card.html' with context %}
+    {% endfor %}
+</div>
+{% elif query %}
+<div class="notice-box" style="text-align: center;">
+    No results found for "<strong>{{ query }}</strong>"
+</div>
+{% endif %}

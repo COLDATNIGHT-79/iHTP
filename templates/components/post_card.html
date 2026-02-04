@@ -1,0 +1,50 @@
+<div class="demo-post">
+    {% if post.status.value == 'blocked' %}
+    <div class="warning-label">
+        ⚠ BLOCKED: {{ post.moderation_reason or "VIOLATES CONTENT POLICY" }}
+    </div>
+    {% endif %}
+
+    <div class="demo-post-header">POST #{{ post.id | string | truncate(8, True, '') }}</div>
+
+    {% if post.image_url %}
+    <div class="demo-post-image">
+        <img src="{{ post.image_url }}" alt="{{ post.title }}"
+            onerror="this.parentElement.innerHTML='[IMAGE UNAVAILABLE]'">
+    </div>
+    {% else %}
+    <div class="demo-post-image">[NO IMAGE]</div>
+    {% endif %}
+
+    <div class="demo-post-content">
+        <h4 class="demo-post-title">{{ post.title }}</h4>
+
+        {% if post.description %}
+        <p style="font-size: 13px; margin-bottom: 10px;">{{ post.description }}</p>
+        {% endif %}
+
+        {% if post.reason %}
+        <div class="reason-box">
+            <strong>Reason:</strong> {{ post.reason }}
+        </div>
+        {% endif %}
+
+        {% if post.tags %}
+        <div class="demo-tags">
+            {% for tag in post.tags %}
+            <span class="demo-tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div
+            style="border-top: 1px solid #999; padding-top: 15px; display: flex; justify-content: space-between; font-size: 11px; align-items: center;">
+            <span>Posted: {{ post.created_at.strftime('%b %d, %Y') }}</span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <a href="/post/{{ post.id }}" class="btn-share" title="Share this post">🔗</a>
+                {% set is_liked = (post.id | string) in liked_post_ids %}
+                {% include 'components/like_button.html' %}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,10 @@
+<div class="search-box">
+    <form hx-get="/search" hx-target="#search-results" hx-swap="innerHTML"
+        hx-trigger="submit, keyup changed delay:300ms from:input">
+        <input type="text" name="q" class="search-input" placeholder="Search by name, description, reason, or tag..."
+            autocomplete="off">
+        <button type="submit" class="btn-search">SEARCH</button>
+    </form>
+</div>
+
+<div id="search-results"></div>

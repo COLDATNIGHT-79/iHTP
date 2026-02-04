@@ -1,0 +1,4 @@
+<button class="btn-like {% if is_liked %}liked{% endif %}" hx-post="/posts/{{ post.id }}/like" hx-swap="outerHTML"
+    title="{% if is_liked %}Unlike{% else %}Like{% endif %}">
+    {% if is_liked %}★{% else %}☆{% endif %} {{ post.like_count }}
+</button>

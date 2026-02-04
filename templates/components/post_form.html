@@ -1,0 +1,34 @@
+<div class="post-form-box">
+    <form hx-post="/posts" hx-target="#feed" hx-swap="afterbegin" hx-on::after-request="this.reset()">
+        <div class="form-group">
+            <label>Image URL (optional)</label>
+            <input type="url" name="image_url" class="form-input full-width"
+                placeholder="https://example.com/image.jpg">
+        </div>
+
+        <div class="form-group">
+            <label>Name <span class="char-limit">(50 chars max)</span></label>
+            <input type="text" name="title" class="form-input full-width" placeholder="Who do you hate?" maxlength="50"
+                required>
+        </div>
+
+        <div class="form-group">
+            <label>Description <span class="char-limit">(180 chars max)</span></label>
+            <textarea name="description" rows="2" class="form-textarea" placeholder="Who is this person?"
+                maxlength="180"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Reason for Hate <span class="char-limit">(250 chars max)</span></label>
+            <textarea name="reason" rows="3" class="form-textarea" placeholder="Why do you hate them?"
+                maxlength="250"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <input type="text" name="tags" class="form-input" placeholder="TAGS (max 2, comma separated)">
+            <button type="submit" class="btn-submit">
+                POST HATRED
+            </button>
+        </div>
+    </form>
+</div>

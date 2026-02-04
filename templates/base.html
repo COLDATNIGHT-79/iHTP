@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}iHateThisPerson{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+    <div class="preview-container">
+        <div class="header">
+            <h1 class="site-title">iHateThisPerson</h1>
+            <p class="tagline">Anonymous Hate Board - Say What You Really Think</p>
+        </div>
+
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+
+        <div class="status-bar">
+            DATABASE: <strong>{{ db_status }}</strong>
+            &nbsp;|&nbsp;
+            IDENTITY: <strong>{{ user_hash }}</strong>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 iHateThisPerson | Anonymous Hate Board</p>
+            <p style="font-size: 10px; margin-top: 10px; opacity: 0.7;">Built with nostalgia for the simpler web of the
+                2000s</p>
+        </div>
+    </div>
+</body>
+
+</html>
