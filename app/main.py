@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Depends, Form, HTTPException, Query, UploadFile, File
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
@@ -147,7 +147,7 @@ async def search_posts(request: Request, q: str = Query(""), db: AsyncSession = 
 @app.post("/posts", response_class=HTMLResponse)
 async def create_post(
     request: Request, 
-    image: UploadFile = File(None),
+    image_url: str = Form(""),
     title: str = Form(...),
     description: str = Form(""), 
     reason: str = Form(""), 
@@ -159,18 +159,9 @@ async def create_post(
     # Build tags list from dropdowns
     tag_list = [t.strip().lower() for t in [tag1, tag2] if t.strip()]
     
-    # Process uploaded image
-    image_data = None
-    if image and image.filename:
-        from .image_processor import process_uploaded_image
-        file_content = await image.read()
-        image_data, error = process_uploaded_image(file_content, image.content_type)
-        if error:
-            # Return error to user - for now just skip the image
-            image_data = None
-    
+    # Store the URL - resolution happens at display time via proxy
     new_post = Post(
-        image_data=image_data,
+        image_url=image_url.strip() if image_url else None,
         title=title[:50],
         description=description[:180] if description else None,
         reason=reason[:250] if reason else None,

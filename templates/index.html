@@ -6,14 +6,10 @@
     <div class="cards-grid" id="feed">
         {% for post in posts %}
         <div class="card">
-            {% if post.image_data %}
+            {% if post.image_url %}
             <div class="card-image">
-                <img src="data:image/jpeg;base64,{{ post.image_data }}" alt="{{ post.title }}">
-            </div>
-            {% elif post.image_url %}
-            <div class="card-image">
-                <img src="{{ post.image_url }}" alt="{{ post.title }}"
-                    onerror="this.parentElement.innerHTML='[NO IMG]'">
+                <img src="/img/{{ post.id }}" alt="{{ post.title }}"
+                    onerror="this.parentElement.classList.add('card-image-empty'); this.remove();">
             </div>
             {% else %}
             <div class="card-image card-image-empty"></div>

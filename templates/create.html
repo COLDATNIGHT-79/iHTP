@@ -11,20 +11,18 @@
                 <span class="preview-placeholder">image preview</span>
             </div>
             <p class="preview-hint">
-                Max 2MB • Auto-compressed to under 100KB<br>
-                JPG, PNG, GIF supported
+                Paste any image URL - Instagram, Twitter, Imgur, etc.<br>
+                We'll extract and display the image for you
             </p>
         </div>
 
         <!-- Right: Form -->
         <div class="create-form">
-            <form action="/posts" method="post" enctype="multipart/form-data">
+            <form action="/posts" method="post">
                 <div class="form-group">
-                    <label class="file-upload-label">
-                        <input type="file" name="image" accept="image/*" id="image-input" class="file-input">
-                        <span class="file-upload-btn">📷 Choose Image</span>
-                        <span class="file-name" id="file-name">No file selected</span>
-                    </label>
+                    <input type="text" name="image_url" class="form-input"
+                        placeholder="paste image URL (instagram, twitter, imgur, direct link...)" id="image-url-input"
+                        oninput="previewUrl(this.value)">
                 </div>
 
                 <div class="form-group">
@@ -87,33 +85,14 @@
 </div>
 
 <script>
-    document.getElementById('image-input').addEventListener('change', function (e) {
-        const file = e.target.files[0];
+    function previewUrl(url) {
         const preview = document.getElementById('image-preview');
-        const fileName = document.getElementById('file-name');
-
-        if (file) {
-            // Check file size (2MB max)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('File too large! Maximum size is 2MB');
-                e.target.value = '';
-                fileName.textContent = 'No file selected';
-                preview.innerHTML = '<span class="preview-placeholder">image preview</span>';
-                return;
-            }
-
-            fileName.textContent = file.name;
-
-            // Show preview
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            fileName.textContent = 'No file selected';
+        if (!url || !url.trim()) {
             preview.innerHTML = '<span class="preview-placeholder">image preview</span>';
+            return;
         }
-    });
+        // For preview, try direct URL (may not work for Instagram but that's ok)
+        preview.innerHTML = '<img src="' + url + '" alt="Preview" onerror="this.outerHTML=\'<span class=preview-placeholder>Preview unavailable - will work after submit</span>\'">';
+    }
 </script>
 {% endblock %}
