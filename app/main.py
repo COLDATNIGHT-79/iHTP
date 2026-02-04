@@ -7,12 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text, select, or_, func
 from uuid import UUID
 from datetime import datetime, timedelta
+import httpx
 from .database import get_db
 from .middleware import AuthMiddleware
 from .models import Post, Like
 from .admin_auth import (
     verify_password, create_access_token, get_admin_from_cookie, require_admin
 )
+from .image_proxy import resolve_image_url
 
 app = FastAPI()
 
@@ -208,6 +210,72 @@ async def like_post(request: Request, post_id: UUID, db: AsyncSession = Depends(
     return templates.TemplateResponse("components/like_button.html", {
         "request": request, "post": post, "is_liked": is_liked
     })
+
+# ==================== IMAGE PROXY ROUTES ====================
+
+@app.get("/proxy/image")
+async def proxy_image(url: str):
+    """
+    Proxy endpoint to fetch and serve images, bypassing CORS and hotlink protection.
+    Usage: /proxy/image?url=https://instagram.com/p/xyz
+    """
+    if not url:
+        raise HTTPException(status_code=400, detail="URL parameter required")
+    
+    try:
+        # First, resolve the URL to a direct image
+        resolved_url = await resolve_image_url(url)
+        
+        if not resolved_url:
+            raise HTTPException(status_code=404, detail="Could not resolve image URL")
+        
+        # Fetch the actual image
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+                'Referer': resolved_url,
+            }
+            
+            response = await client.get(resolved_url, headers=headers)
+            
+            if response.status_code != 200:
+                raise HTTPException(status_code=response.status_code, detail="Failed to fetch image")
+            
+            # Determine content type
+            content_type = response.headers.get('content-type', 'image/jpeg')
+            
+            # Return the image with proper headers
+            return Response(
+                content=response.content,
+                media_type=content_type,
+                headers={
+                    'Cache-Control': 'public, max-age=86400',  # Cache for 24 hours
+                    'Access-Control-Allow-Origin': '*',  # Allow CORS
+                }
+            )
+    
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="Request timeout")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching image: {str(e)}")
+
+
+@app.get("/resolve/image")
+async def resolve_only(url: str):
+    """
+    Just resolve a URL to direct image URL without fetching it.
+    Useful for debugging.
+    Usage: /resolve/image?url=https://instagram.com/p/xyz
+    """
+    if not url:
+        raise HTTPException(status_code=400, detail="URL parameter required")
+    
+    try:
+        resolved = await resolve_image_url(url)
+        return {"original": url, "resolved": resolved}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ==================== ADMIN ROUTES ====================
 
