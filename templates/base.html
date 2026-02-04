@@ -11,27 +11,55 @@
 </head>
 
 <body>
-    <div class="preview-container">
-        <div class="header">
-            <h1 class="site-title">iHateThisPerson</h1>
-            <p class="tagline">Anonymous Hate Board - Say What You Really Think</p>
-        </div>
+    <div class="app-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo">iHateThisPerson</a>
+            </div>
 
-        <div class="content">
+            <nav class="sidebar-nav">
+                <a href="/leaderboard"
+                    class="nav-item {% if active_page == 'leaderboard' %}active{% endif %}">LeaderBoard</a>
+                <a href="/" class="nav-item {% if active_page == 'home' %}active{% endif %}">home</a>
+                <a href="/create" class="nav-item create-btn {% if active_page == 'create' %}active{% endif %}">+ Create
+                    Listing</a>
+            </nav>
+
+            <div class="sidebar-rules">
+                <div class="rules-header">Rules:</div>
+                <ul class="rules-list">
+                    <li>No illegal content</li>
+                    <li>No minors</li>
+                    <li>No doxxing</li>
+                    <li>Keep it civil</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar with Search -->
+            <div class="top-bar">
+                <div class="top-bar-spacer"></div>
+                <div class="search-container">
+                    <form hx-get="/search" hx-target="#search-results"
+                        hx-trigger="submit, keyup changed delay:300ms from:input">
+                        <input type="text" name="q" class="search-input" placeholder="search" autocomplete="off">
+                    </form>
+                </div>
+            </div>
+
+            <div id="search-results"></div>
+
             {% block content %}{% endblock %}
-        </div>
+        </main>
+    </div>
 
-        <div class="status-bar">
-            DATABASE: <strong>{{ db_status }}</strong>
-            &nbsp;|&nbsp;
-            IDENTITY: <strong>{{ user_hash }}</strong>
-        </div>
-
-        <div class="footer">
-            <p>&copy; 2026 iHateThisPerson | Anonymous Hate Board</p>
-            <p style="font-size: 10px; margin-top: 10px; opacity: 0.7;">Built with nostalgia for the simpler web of the
-                2000s</p>
-        </div>
+    <div class="status-bar">
+        DATABASE: <strong>{{ db_status or 'Unknown' }}</strong>
+        &nbsp;|&nbsp;
+        IDENTITY: <strong>{{ user_hash or 'Anonymous' }}</strong>
     </div>
 </body>
 

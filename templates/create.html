@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Create Listing - iHateThisPerson{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="create-container">
+        <!-- Left: Image Preview -->
+        <div class="create-preview">
+            <div class="preview-box" id="image-preview">
+                <span class="preview-placeholder">image preview</span>
+            </div>
+            <p class="preview-hint">
+                Max 2MB • Auto-compressed to under 100KB<br>
+                JPG, PNG, GIF supported
+            </p>
+        </div>
+
+        <!-- Right: Form -->
+        <div class="create-form">
+            <form action="/posts" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="file-upload-label">
+                        <input type="file" name="image" accept="image/*" id="image-input" class="file-input">
+                        <span class="file-upload-btn">📷 Choose Image</span>
+                        <span class="file-name" id="file-name">No file selected</span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" name="title" class="form-input" placeholder="title" maxlength="50" required>
+                </div>
+
+                <div class="form-group">
+                    <textarea name="description" class="form-textarea" placeholder="description" maxlength="180"
+                        rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <textarea name="reason" class="form-textarea" placeholder="reason for hate" maxlength="250"
+                        rows="4"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <select name="tag1" class="form-select">
+                        <option value="">tag 1</option>
+                        <option value="politics">politics</option>
+                        <option value="celebrity">celebrity</option>
+                        <option value="sports">sports</option>
+                        <option value="business">business</option>
+                        <option value="tech">tech</option>
+                        <option value="other">other</option>
+                    </select>
+                    <select name="tag2" class="form-select">
+                        <option value="">tag 2</option>
+                        <option value="politics">politics</option>
+                        <option value="celebrity">celebrity</option>
+                        <option value="sports">sports</option>
+                        <option value="business">business</option>
+                        <option value="tech">tech</option>
+                        <option value="other">other</option>
+                    </select>
+                    <select name="nationality" class="form-select nationality-select">
+                        <option value="">nationality</option>
+                        <option value="US">🇺🇸 United States</option>
+                        <option value="GB">🇬🇧 United Kingdom</option>
+                        <option value="IN">🇮🇳 India</option>
+                        <option value="CA">🇨🇦 Canada</option>
+                        <option value="AU">🇦🇺 Australia</option>
+                        <option value="DE">🇩🇪 Germany</option>
+                        <option value="FR">🇫🇷 France</option>
+                        <option value="JP">🇯🇵 Japan</option>
+                        <option value="CN">🇨🇳 China</option>
+                        <option value="BR">🇧🇷 Brazil</option>
+                        <option value="MX">🇲🇽 Mexico</option>
+                        <option value="RU">🇷🇺 Russia</option>
+                        <option value="KR">🇰🇷 South Korea</option>
+                        <option value="IT">🇮🇹 Italy</option>
+                        <option value="ES">🇪🇸 Spain</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">Create Listing</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('image-input').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('image-preview');
+        const fileName = document.getElementById('file-name');
+
+        if (file) {
+            // Check file size (2MB max)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File too large! Maximum size is 2MB');
+                e.target.value = '';
+                fileName.textContent = 'No file selected';
+                preview.innerHTML = '<span class="preview-placeholder">image preview</span>';
+                return;
+            }
+
+            fileName.textContent = file.name;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            fileName.textContent = 'No file selected';
+            preview.innerHTML = '<span class="preview-placeholder">image preview</span>';
+        }
+    });
+</script>
+{% endblock %}

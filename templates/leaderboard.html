@@ -2,7 +2,26 @@
 
 {% block content %}
 <div class="page-content">
-    <!-- Cards Grid (no filters, random order) -->
+    <!-- Filters -->
+    <div class="filters-bar">
+        <button class="filter-btn active">this week</button>
+        <select class="filter-select" name="tag">
+            <option value="">All (tags selection)</option>
+            {% for tag in available_tags or [] %}
+            <option value="{{ tag }}">{{ tag }}</option>
+            {% endfor %}
+        </select>
+        <select class="filter-select" name="country">
+            <option value="">Global (country filter)</option>
+            <option value="US">🇺🇸 United States</option>
+            <option value="GB">🇬🇧 United Kingdom</option>
+            <option value="IN">🇮🇳 India</option>
+            <option value="CA">🇨🇦 Canada</option>
+            <option value="AU">🇦🇺 Australia</option>
+        </select>
+    </div>
+
+    <!-- Cards Grid -->
     <div class="cards-grid" id="feed">
         {% for post in posts %}
         <div class="card">
@@ -25,7 +44,7 @@
             <a href="/post/{{ post.id }}" class="card-link"></a>
         </div>
         {% else %}
-        <div class="empty-state">No posts yet. <a href="/create">Create one!</a></div>
+        <div class="empty-state">No posts yet. Be the first!</div>
         {% endfor %}
     </div>
 </div>

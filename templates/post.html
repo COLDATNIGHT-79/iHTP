@@ -42,7 +42,7 @@
 <!-- Export Container (styled for PNG output) -->
 <div id="export-container" class="demo-section">
     <div class="demo-post export-card" id="card-to-export">
-        {% if post.status.value == 'blocked' %}
+        {% if post.status == 'blocked' %}
         <div class="warning-label">
             ⚠ BLOCKED: {{ post.moderation_reason or "VIOLATES CONTENT POLICY" }}
         </div>

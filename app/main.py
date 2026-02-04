@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Depends, Form, HTTPException, Query
+from fastapi import FastAPI, Request, Depends, Form, HTTPException, Query, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -9,7 +9,7 @@ from uuid import UUID
 from datetime import datetime, timedelta
 from .database import get_db
 from .middleware import AuthMiddleware
-from .models import Post, Like, ModerationStatus
+from .models import Post, Like
 from .admin_auth import (
     verify_password, create_access_token, get_admin_from_cookie, require_admin
 )
@@ -30,16 +30,12 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: AsyncSession = Depends(get_db)):
+    """Home page - random posts in grid"""
     result = await db.execute(
-        select(Post).order_by(Post.like_count.desc(), Post.created_at.desc()).limit(50)
+        select(Post).where(Post.status == "active")
+        .order_by(func.random()).limit(50)
     )
     posts = result.scalars().all()
-    
-    user_hash = request.state.user_hash
-    liked_result = await db.execute(
-        select(Like.post_id).where(Like.client_hash == user_hash)
-    )
-    liked_post_ids = {str(row[0]) for row in liked_result.fetchall()}
     
     try:
         await db.execute(text("SELECT 1"))
@@ -50,9 +46,51 @@ async def read_root(request: Request, db: AsyncSession = Depends(get_db)):
     return templates.TemplateResponse("index.html", {
         "request": request, 
         "db_status": db_status,
-        "user_hash": user_hash[:8] + "...",
+        "user_hash": request.state.user_hash[:8] + "...",
         "posts": posts,
-        "liked_post_ids": liked_post_ids
+        "active_page": "home"
+    })
+
+@app.get("/leaderboard", response_class=HTMLResponse)
+async def leaderboard_page(request: Request, db: AsyncSession = Depends(get_db)):
+    """Leaderboard page - top liked posts from this week"""
+    seven_days_ago = datetime.utcnow() - timedelta(days=7)
+    result = await db.execute(
+        select(Post)
+        .where(Post.created_at >= seven_days_ago)
+        .where(Post.status == "active")
+        .order_by(Post.like_count.desc())
+        .limit(50)
+    )
+    posts = result.scalars().all()
+    
+    try:
+        await db.execute(text("SELECT 1"))
+        db_status = "Connected 🟢"
+    except:
+        db_status = "Failed 🔴"
+
+    return templates.TemplateResponse("leaderboard.html", {
+        "request": request, 
+        "db_status": db_status,
+        "user_hash": request.state.user_hash[:8] + "...",
+        "posts": posts,
+        "active_page": "leaderboard"
+    })
+
+@app.get("/create", response_class=HTMLResponse)
+async def create_page(request: Request):
+    """Create listing page"""
+    try:
+        db_status = "Connected 🟢"
+    except:
+        db_status = "Failed 🔴"
+        
+    return templates.TemplateResponse("create.html", {
+        "request": request, 
+        "db_status": db_status,
+        "user_hash": request.state.user_hash[:8] + "...",
+        "active_page": "create"
     })
 
 @app.get("/post/{post_id}", response_class=HTMLResponse)
@@ -82,21 +120,6 @@ async def view_post(request: Request, post_id: UUID, db: AsyncSession = Depends(
         "liked_post_ids": liked_post_ids
     })
 
-@app.get("/leaderboard", response_class=HTMLResponse)
-async def get_leaderboard(request: Request, db: AsyncSession = Depends(get_db)):
-    seven_days_ago = datetime.utcnow() - timedelta(days=7)
-    result = await db.execute(
-        select(Post)
-        .where(Post.created_at >= seven_days_ago)
-        .where(Post.status == ModerationStatus.active)
-        .order_by(Post.like_count.desc())
-        .limit(5)
-    )
-    return templates.TemplateResponse("components/leaderboard_items.html", {
-        "request": request,
-        "leaderboard_posts": result.scalars().all()
-    })
-
 @app.get("/search", response_class=HTMLResponse)
 async def search_posts(request: Request, q: str = Query(""), db: AsyncSession = Depends(get_db)):
     query = q.strip()
@@ -114,38 +137,53 @@ async def search_posts(request: Request, q: str = Query(""), db: AsyncSession = 
             )
         ).order_by(Post.like_count.desc()).limit(20)
     )
-    search_results = result.scalars().all()
+    posts = result.scalars().all()
     
-    user_hash = request.state.user_hash
-    liked_result = await db.execute(select(Like.post_id).where(Like.client_hash == user_hash))
-    liked_post_ids = {str(row[0]) for row in liked_result.fetchall()}
-    
-    return templates.TemplateResponse("components/search_results.html", {
-        "request": request, "search_results": search_results, 
-        "query": query, "liked_post_ids": liked_post_ids
+    # Return cards for search results
+    return templates.TemplateResponse("components/search_grid.html", {
+        "request": request, "posts": posts, "query": query
     })
 
 @app.post("/posts", response_class=HTMLResponse)
 async def create_post(
-    request: Request, image_url: str = Form(""), title: str = Form(...),
-    description: str = Form(""), reason: str = Form(""), tags: str = Form(""),
+    request: Request, 
+    image: UploadFile = File(None),
+    title: str = Form(...),
+    description: str = Form(""), 
+    reason: str = Form(""), 
+    tag1: str = Form(""),
+    tag2: str = Form(""),
+    nationality: str = Form(""),
     db: AsyncSession = Depends(get_db)
 ):
-    tag_list = [t.strip().lower() for t in tags.split(",") if t.strip()][:2]
+    # Build tags list from dropdowns
+    tag_list = [t.strip().lower() for t in [tag1, tag2] if t.strip()]
+    
+    # Process uploaded image
+    image_data = None
+    if image and image.filename:
+        from .image_processor import process_uploaded_image
+        file_content = await image.read()
+        image_data, error = process_uploaded_image(file_content, image.content_type)
+        if error:
+            # Return error to user - for now just skip the image
+            image_data = None
+    
     new_post = Post(
-        image_url=image_url if image_url else None,
+        image_data=image_data,
         title=title[:50],
         description=description[:180] if description else None,
         reason=reason[:250] if reason else None,
         tags=tag_list,
+        nationality=nationality if nationality else None,
         author_hash=request.state.user_hash
     )
     db.add(new_post)
     await db.commit()
     await db.refresh(new_post)
-    return templates.TemplateResponse("components/post_card.html", {
-        "request": request, "post": new_post, "liked_post_ids": set()
-    })
+    
+    # Redirect to home after creating
+    return RedirectResponse(url="/", status_code=303)
 
 @app.post("/posts/{post_id}/like", response_class=HTMLResponse)
 async def like_post(request: Request, post_id: UUID, db: AsyncSession = Depends(get_db)):
@@ -155,7 +193,7 @@ async def like_post(request: Request, post_id: UUID, db: AsyncSession = Depends(
     
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
-    if post.status == ModerationStatus.blocked:
+    if post.status == "blocked":
         raise HTTPException(status_code=403, detail="Cannot like blocked posts")
     
     existing = await db.execute(
@@ -240,7 +278,7 @@ async def block_post(
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     
-    post.status = ModerationStatus.blocked
+    post.status = "blocked"
     post.moderation_reason = reason
     await db.commit()
     await db.refresh(post)
@@ -257,7 +295,7 @@ async def unblock_post(request: Request, post_id: UUID, db: AsyncSession = Depen
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     
-    post.status = ModerationStatus.active
+    post.status = "active"
     post.moderation_reason = None
     await db.commit()
     await db.refresh(post)
