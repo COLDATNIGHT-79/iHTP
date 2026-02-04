@@ -603,3 +603,23 @@ body {
 .full-width {
     width: 100%;
 }
+
+/* ====== Made By Credit ====== */
+.made-by {
+    position: fixed;
+    bottom: 8px;
+    left: 8px;
+    font-size: 9px;
+    color: #999;
+    z-index: 100;
+}
+
+.made-by a {
+    color: #999;
+    text-decoration: none;
+}
+
+.made-by a:hover {
+    color: #cc0000;
+    text-decoration: underline;
+}
