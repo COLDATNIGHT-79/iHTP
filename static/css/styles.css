@@ -8,7 +8,7 @@
 
 body {
     font-family: 'Courier Prime', monospace;
-    background-color: #fff;
+    background-color: #f5f1e8;
     color: #1a1a1a;
 }
 
@@ -21,7 +21,8 @@ body {
 /* ====== Sidebar ====== */
 .sidebar {
     width: 200px;
-    border-right: 1px solid #1a1a1a;
+    background: #fff;
+    border-right: 2px solid #1a1a1a;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -29,7 +30,7 @@ body {
 
 .sidebar-header {
     padding: 15px;
-    border-bottom: 1px solid #1a1a1a;
+    border-bottom: 2px solid #1a1a1a;
 }
 
 .logo {
@@ -45,31 +46,27 @@ body {
 }
 
 .nav-item {
-    padding: 10px 15px;
-    border-bottom: 1px solid #1a1a1a;
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
     text-decoration: none;
     color: #1a1a1a;
     font-size: 13px;
 }
 
 .nav-item:hover {
-    background-color: #f0f0f0;
+    background-color: #f5f1e8;
 }
 
 .nav-item.active {
-    border-left: 3px solid #cc0000;
-    background-color: #fff;
-}
-
-.nav-item.create-btn.active {
-    border-left: 3px solid #cc0000;
+    border-left: 4px solid #cc0000;
+    background-color: #f5f1e8;
 }
 
 .sidebar-rules {
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid #1a1a1a;
     margin: 20px 10px;
+    padding: 15px;
+    border: 2px solid #1a1a1a;
+    background: #fff;
 }
 
 .rules-header {
@@ -96,21 +93,18 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    border-bottom: 1px solid #1a1a1a;
-}
-
-.top-bar-spacer {
-    flex: 1;
+    background: #fff;
+    border-bottom: 2px solid #1a1a1a;
 }
 
 .search-container {
-    width: 250px;
+    width: 300px;
 }
 
 .search-input {
     width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #1a1a1a;
+    padding: 10px 14px;
+    border: 2px solid #1a1a1a;
     font-family: 'Courier Prime', monospace;
     font-size: 12px;
     background: #fff;
@@ -122,107 +116,175 @@ body {
 }
 
 .page-content {
-    padding: 20px;
+    padding: 25px;
     flex: 1;
 }
 
-/* ====== Filters Bar ====== */
-.filters-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.filter-btn {
-    padding: 8px 15px;
-    border: 1px solid #1a1a1a;
-    background: #fff;
-    font-family: 'Courier Prime', monospace;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.filter-btn.active {
-    background: #1a1a1a;
-    color: #fff;
-}
-
-.filter-select {
-    padding: 8px 12px;
-    border: 1px solid #1a1a1a;
-    font-family: 'Courier Prime', monospace;
-    font-size: 12px;
-    background: #fff;
-    cursor: pointer;
-}
-
-/* ====== Cards Grid ====== */
+/* ====== Pokemon-Style Cards ====== */
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
 }
 
-.card {
-    border: 1px solid #1a1a1a;
-    background: #fff;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
-
-.card-link {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1;
-}
-
-.card-image {
-    aspect-ratio: 1/1.3;
+.pokemon-card {
+    background: linear-gradient(145deg, #fff9e6 0%, #f5f1e8 100%);
+    border: 4px solid #1a1a1a;
+    border-radius: 12px;
     overflow: hidden;
-    border-bottom: 1px solid #1a1a1a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f5f5f5;
+    box-shadow:
+        6px 6px 0 #1a1a1a,
+        inset 0 0 0 2px #d4af37;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.card-image img {
+.pokemon-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow:
+        9px 9px 0 #1a1a1a,
+        inset 0 0 0 2px #d4af37;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: linear-gradient(90deg, #d4af37, #f0d060);
+    border-bottom: 2px solid #1a1a1a;
+}
+
+.card-id {
+    font-size: 10px;
+    color: #1a1a1a;
+    font-weight: bold;
+}
+
+.card-flag {
+    font-size: 14px;
+}
+
+.card-image-frame {
+    margin: 12px;
+    border: 3px solid #1a1a1a;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #ddd;
+    aspect-ratio: 4/3;
+}
+
+.card-image-frame img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.card-image-empty {
-    background: #fff;
+.card-image-frame .no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eee;
+    color: #999;
+    font-size: 12px;
 }
 
-.card-content {
-    padding: 10px;
+.card-body {
+    padding: 0 12px 12px;
 }
 
 .card-title {
-    font-size: 12px;
+    font-size: 16px;
     font-weight: bold;
-    margin-bottom: 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+    border-bottom: 2px solid #d4af37;
+    padding-bottom: 6px;
+}
+
+.card-desc {
+    font-size: 12px;
+    color: #444;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.card-reason {
+    font-size: 11px;
+    background: #fff;
+    border: 1px solid #1a1a1a;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+}
+
+.card-reason strong {
+    color: #cc0000;
+}
+
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.tag {
+    font-size: 10px;
+    padding: 3px 8px;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 10px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: linear-gradient(90deg, #d4af37, #f0d060);
+    border-top: 2px solid #1a1a1a;
+}
+
+.card-stats {
+    display: flex;
+    gap: 15px;
+    font-size: 11px;
+    font-weight: bold;
 }
 
 .card-likes {
-    font-size: 11px;
-    color: #666;
+    color: #cc0000;
 }
 
-.empty-state {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 40px;
-    color: #666;
+.card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-like,
+.btn-download,
+.btn-share {
+    padding: 6px 10px;
+    border: 2px solid #1a1a1a;
+    background: #fff;
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+}
+
+.btn-like:hover {
+    background: #cc0000;
+    color: #fff;
+    border-color: #cc0000;
+}
+
+.btn-download:hover,
+.btn-share:hover {
+    background: #1a1a1a;
+    color: #fff;
 }
 
 /* ====== Create Page ====== */
@@ -237,13 +299,14 @@ body {
 }
 
 .preview-box {
-    border: 1px solid #1a1a1a;
+    border: 3px solid #1a1a1a;
     aspect-ratio: 1/1.2;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #f5f5f5;
     overflow: hidden;
+    border-radius: 8px;
 }
 
 .preview-box img {
@@ -264,11 +327,6 @@ body {
     text-align: center;
 }
 
-.image-error {
-    color: #cc0000;
-    font-size: 12px;
-}
-
 .create-form {
     flex: 1;
 }
@@ -277,41 +335,13 @@ body {
     margin-bottom: 15px;
 }
 
-.file-upload-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-}
-
-.file-input {
-    display: none;
-}
-
-.file-upload-btn {
-    padding: 10px 15px;
-    background: #1a1a1a;
-    color: #fff;
-    border: 1px solid #1a1a1a;
-    font-family: 'Courier Prime', monospace;
-    font-size: 12px;
-}
-
-.file-upload-btn:hover {
-    background: #cc0000;
-}
-
-.file-name {
-    font-size: 11px;
-    color: #666;
-}
-
 .form-input {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #1a1a1a;
+    padding: 12px;
+    border: 2px solid #1a1a1a;
     font-family: 'Courier Prime', monospace;
     font-size: 13px;
+    border-radius: 4px;
 }
 
 .form-input:focus {
@@ -321,11 +351,12 @@ body {
 
 .form-textarea {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #1a1a1a;
+    padding: 12px;
+    border: 2px solid #1a1a1a;
     font-family: 'Courier Prime', monospace;
     font-size: 13px;
     resize: vertical;
+    border-radius: 4px;
 }
 
 .form-textarea:focus {
@@ -341,33 +372,29 @@ body {
 
 .form-select {
     flex: 1;
-    padding: 10px 12px;
-    border: 1px solid #1a1a1a;
+    padding: 12px;
+    border: 2px solid #1a1a1a;
     font-family: 'Courier Prime', monospace;
     font-size: 12px;
     background: #fff;
+    border-radius: 4px;
 }
 
 .nationality-select {
     flex: 1.5;
 }
 
-.form-hint {
-    font-size: 10px;
-    color: #666;
-    margin-bottom: 20px;
-    line-height: 1.5;
-}
-
 .btn-submit {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     background: #1a1a1a;
     color: #fff;
-    border: 1px solid #1a1a1a;
+    border: 2px solid #1a1a1a;
     font-family: 'Courier Prime', monospace;
-    font-size: 13px;
+    font-size: 14px;
     cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
 }
 
 .btn-submit:hover {
@@ -379,39 +406,29 @@ body {
 .status-bar {
     font-size: 10px;
     padding: 8px 20px;
-    border-top: 1px solid #1a1a1a;
-    background: #f5f5f5;
+    border-top: 2px solid #1a1a1a;
+    background: #fff;
     text-align: center;
     color: #666;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
 }
 
-.status-bar strong {
-    color: #1a1a1a;
+/* ====== Empty State ====== */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px;
+    color: #666;
+    font-size: 14px;
 }
 
-/* ====== Search Results ====== */
-#search-results {
-    padding: 0 20px;
-}
-
-#search-results .cards-grid {
-    padding: 20px 0;
+.empty-state a {
+    color: #cc0000;
 }
 
 /* ====== Responsive ====== */
-@media (max-width: 1200px) {
-    .cards-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
 @media (max-width: 900px) {
     .cards-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     }
 
     .create-container {
@@ -421,10 +438,15 @@ body {
 
 @media (max-width: 600px) {
     .sidebar {
-        width: 150px;
+        width: 60px;
+    }
+
+    .sidebar .nav-item span,
+    .sidebar-rules {
+        display: none;
     }
 
     .cards-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
     }
 }
