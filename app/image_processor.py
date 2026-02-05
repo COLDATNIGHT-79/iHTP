@@ -1,6 +1,6 @@
 """
-Extreme Image Compression - Reduces images to ~3KB blocky/pixelated style
-Stores as base64 in database for minimal storage
+Image Compression - Reduces images to ~50KB for decent quality
+Stores as base64 in database
 """
 import io
 import base64
@@ -8,11 +8,11 @@ from typing import Tuple, Optional
 from PIL import Image
 
 MAX_UPLOAD_SIZE = 2 * 1024 * 1024  # 2MB max upload
-TARGET_SIZE = 3 * 1024  # 3KB target
+TARGET_SIZE = 50 * 1024  # 50KB target
 
 def compress_to_blocky(file_content: bytes, content_type: str = None) -> Tuple[Optional[str], Optional[str]]:
     """
-    Compress image to ~3KB with blocky/pixelated aesthetic.
+    Compress image to ~50KB for decent quality.
     Returns (base64_data, error_message)
     """
     # Check upload size
@@ -40,13 +40,13 @@ def compress_to_blocky(file_content: bytes, content_type: str = None) -> Tuple[O
         # Strategy: Resize to very small (creates blocky effect when scaled up)
         # Then use lowest quality JPEG
         
-        # Calculate tiny size while maintaining aspect ratio
-        # We want ~3KB, which means roughly 32x32 to 48x48 pixels at low quality
+        # Calculate size while maintaining aspect ratio
+        # ~50KB allows for ~200-300 pixel images at decent quality
         original_width, original_height = img.size
         aspect = original_width / original_height
         
-        # Start with a small size
-        target_pixels = 40  # Base size - will adjust if needed
+        # Start with a reasonable size
+        target_pixels = 200  # Base size - will adjust if needed
         
         if aspect > 1:
             new_width = int(target_pixels * aspect)
@@ -55,11 +55,11 @@ def compress_to_blocky(file_content: bytes, content_type: str = None) -> Tuple[O
             new_width = target_pixels
             new_height = int(target_pixels / aspect)
         
-        # Resize with NEAREST for maximum blockiness
-        img_small = img.resize((new_width, new_height), Image.Resampling.NEAREST)
+        # Resize with LANCZOS for better quality
+        img_small = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
         
-        # Try to get under 3KB by adjusting quality and size
-        quality = 60
+        # Try to get under 50KB by adjusting quality and size
+        quality = 85
         result = io.BytesIO()
         
         while True:
