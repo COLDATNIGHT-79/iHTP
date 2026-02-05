@@ -12,8 +12,8 @@
 <meta property="og:url" content="{{ request.url }}">
 <meta property="og:title" content="{{ post.title }} | iHateThisPerson">
 <meta property="og:description" content="{{ post.description or post.reason or 'See why people hate this person' }}">
-{% if post.image_url %}
-<meta property="og:image" content="{{ post.image_url }}">
+{% if post.image_data %}
+<meta property="og:image" content="{{ request.url_for('read_root') }}static/og-preview.png">
 {% endif %}
 <meta property="og:site_name" content="iHateThisPerson">
 
@@ -21,94 +21,224 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ post.title }} | iHateThisPerson">
 <meta name="twitter:description" content="{{ post.description or post.reason or 'See why people hate this person' }}">
-{% if post.image_url %}
-<meta name="twitter:image" content="{{ post.image_url }}">
+{% if post.image_data %}
+<meta name="twitter:image" content="{{ request.url_for('read_root') }}static/og-preview.png">
 {% endif %}
 
 <!-- html2canvas for PNG export -->
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<style>
+    .post-detail-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #1a1a1a;
+        text-decoration: none;
+        font-size: 13px;
+        margin-bottom: 20px;
+        padding: 8px 12px;
+        border: 2px solid #1a1a1a;
+        border-radius: 4px;
+        background: #fff;
+        transition: all 0.15s;
+    }
+
+    .back-link:hover {
+        background: #1a1a1a;
+        color: #fff;
+    }
+
+    .post-header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .export-btn {
+        padding: 10px 16px;
+        background: #1a1a1a;
+        color: #fff;
+        border: 2px solid #1a1a1a;
+        font-family: 'Courier Prime', monospace;
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.15s;
+    }
+
+    .export-btn:hover {
+        background: #cc0000;
+        border-color: #cc0000;
+    }
+
+    .share-section {
+        margin-top: 25px;
+        padding: 20px;
+        background: #fff;
+        border: 3px solid #1a1a1a;
+        border-radius: 8px;
+        box-shadow: 4px 4px 0 #1a1a1a;
+    }
+
+    .share-section h3 {
+        font-size: 14px;
+        margin-bottom: 15px;
+        color: #1a1a1a;
+    }
+
+    .share-input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #1a1a1a;
+        font-family: 'Courier Prime', monospace;
+        font-size: 11px;
+        background: #f5f1e8;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+
+    .share-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .share-btn {
+        flex: 1;
+        min-width: 120px;
+        padding: 12px 16px;
+        text-decoration: none;
+        text-align: center;
+        font-family: 'Courier Prime', monospace;
+        font-size: 11px;
+        border: 2px solid #1a1a1a;
+        border-radius: 4px;
+        transition: all 0.15s;
+    }
+
+    .share-btn-twitter {
+        background: #1a1a1a;
+        color: #fff;
+    }
+
+    .share-btn-twitter:hover {
+        background: #000;
+    }
+
+    .share-btn-facebook {
+        background: #3b5998;
+        border-color: #3b5998;
+        color: #fff;
+    }
+
+    .share-btn-facebook:hover {
+        background: #2d4373;
+        border-color: #2d4373;
+    }
+
+    .blocked-banner {
+        background: #cc0000;
+        color: #fff;
+        padding: 10px;
+        text-align: center;
+        font-size: 11px;
+        font-weight: bold;
+        border-radius: 8px 8px 0 0;
+        margin: -4px -4px 0 -4px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="demo-section">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <a href="/" style="color: #003d7a; text-decoration: none; font-size: 14px;">← Back to Board</a>
-        <button id="export-btn" class="btn-submit" style="background-color: #003d7a;">
-            📷 EXPORT AS PNG
-        </button>
-    </div>
-</div>
-
-<!-- Export Container (styled for PNG output) -->
-<div id="export-container" class="demo-section">
-    <div class="demo-post export-card" id="card-to-export">
-        {% if post.status == 'blocked' %}
-        <div class="warning-label">
-            ⚠ BLOCKED: {{ post.moderation_reason or "VIOLATES CONTENT POLICY" }}
-        </div>
-        {% endif %}
-
-        <div class="demo-post-header" style="display: flex; justify-content: space-between;">
-            <span>iHateThisPerson.com</span>
-            <span>POST #{{ post.id | string | truncate(8, True, '') }}</span>
+<div class="page-content">
+    <div class="post-detail-container">
+        <!-- Header Actions -->
+        <div class="post-header-actions">
+            <a href="/" class="back-link">← Back to Board</a>
+            <button id="export-btn" class="export-btn">📷 EXPORT AS PNG</button>
         </div>
 
-        {% if post.image_url %}
-        <div class="demo-post-image">
-            <img src="{{ post.image_url }}" alt="{{ post.title }}" crossorigin="anonymous"
-                onerror="this.parentElement.innerHTML='[IMAGE UNAVAILABLE]'">
-        </div>
-        {% else %}
-        <div class="demo-post-image">[NO IMAGE]</div>
-        {% endif %}
-
-        <div class="demo-post-content">
-            <h4 class="demo-post-title">{{ post.title }}</h4>
-
-            {% if post.description %}
-            <p style="font-size: 13px; margin-bottom: 10px;">{{ post.description }}</p>
-            {% endif %}
-
-            {% if post.reason %}
-            <div class="reason-box">
-                <strong>Reason:</strong> {{ post.reason }}
+        <!-- The Card -->
+        <div class="pokemon-card" id="card-to-export">
+            {% if post.status == 'blocked' %}
+            <div class="blocked-banner">
+                ⚠ BLOCKED: {{ post.moderation_reason or "VIOLATES CONTENT POLICY" }}
             </div>
             {% endif %}
 
-            {% if post.tags %}
-            <div class="demo-tags">
-                {% for tag in post.tags %}
-                <span class="demo-tag">{{ tag }}</span>
-                {% endfor %}
+            <div class="card-header">
+                <span class="card-id">#{{ post.id | string | truncate(8, True, '') }}</span>
+                {% if post.nationality %}
+                <span class="card-flag">{{ post.nationality }}</span>
+                {% endif %}
             </div>
-            {% endif %}
 
-            <div
-                style="border-top: 1px solid #999; padding-top: 15px; display: flex; justify-content: space-between; font-size: 11px; align-items: center;">
-                <span>Posted: {{ post.created_at.strftime('%b %d, %Y') }}</span>
-                <span class="hate-count" style="font-weight: bold;">☆ {{ post.like_count }} likes</span>
+            <div class="card-image-frame">
+                {% if post.image_data %}
+                <img src="data:image/jpeg;base64,{{ post.image_data }}" alt="{{ post.title }}"
+                    style="image-rendering: pixelated;">
+                {% else %}
+                <div class="no-image">NO IMAGE</div>
+                {% endif %}
+            </div>
+
+            <div class="card-body">
+                <h3 class="card-title">{{ post.title }}</h3>
+
+                {% if post.description %}
+                <p class="card-desc">{{ post.description }}</p>
+                {% endif %}
+
+                {% if post.reason %}
+                <div class="card-reason">
+                    <strong>Reason:</strong> {{ post.reason }}
+                </div>
+                {% endif %}
+
+                {% if post.tags %}
+                <div class="card-tags">
+                    {% for tag in post.tags %}
+                    <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card-footer">
+                <div class="card-stats">
+                    <span class="card-date">{{ post.created_at.strftime('%b %d, %Y') }}</span>
+                    <span class="card-likes">☆ {{ post.like_count }}</span>
+                </div>
+                <div class="card-actions">
+                    {% set is_liked = (post.id | string) in liked_post_ids %}
+                    {% include 'components/like_button.html' %}
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Share Section -->
-<div class="demo-section">
-    <h2>Share This Post</h2>
-    <div class="post-form-box">
-        <div class="form-group">
-            <label>Direct Link</label>
-            <input type="text" class="form-input full-width" value="{{ request.url }}" readonly onclick="this.select()">
-        </div>
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <a href="https://twitter.com/intent/tweet?url={{ request.url | urlencode }}&text={{ post.title | urlencode }}"
-                target="_blank" class="btn-submit" style="text-decoration: none; text-align: center;">
-                Share on Twitter
-            </a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url | urlencode }}" target="_blank"
-                class="btn-submit" style="background-color: #003d7a; text-decoration: none; text-align: center;">
-                Share on Facebook
-            </a>
+        <!-- Share Section -->
+        <div class="share-section">
+            <h3>🔗 Share This Post</h3>
+            <input type="text" class="share-input" value="{{ request.url }}" readonly onclick="this.select()">
+            <div class="share-buttons">
+                <a href="https://twitter.com/intent/tweet?url={{ request.url | urlencode }}&text={{ post.title | urlencode }}"
+                    target="_blank" class="share-btn share-btn-twitter">
+                    Share on Twitter
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url | urlencode }}" target="_blank"
+                    class="share-btn share-btn-facebook">
+                    Share on Facebook
+                </a>
+            </div>
         </div>
     </div>
 </div>
